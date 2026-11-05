@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>真實語料轉課件</title>
+<style>
+:root{--bg:#f6f7f3;--c:#fff;--t:#22262b;--m:#68707a;--bl:#0b6fb8;--gr:#2b8f41;--hl:#fff35c;--b:#d9ddd5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#171a1d;--c:#22272c;--t:#e9ece8;--m:#9aa3ab;--bl:#6bb5ee;--gr:#6fd088;--hl:#6b6410;--b:#3a424a}}
+:root[data-theme=dark]{--bg:#171a1d;--c:#22272c;--t:#e9ece8;--m:#9aa3ab;--bl:#6bb5ee;--gr:#6fd088;--hl:#6b6410;--b:#3a424a}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--t);font:16px/1.7 "PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:16px}
+h1.app{font-size:1.5rem;color:var(--bl);margin:8px 0 2px}.sub0{color:var(--m);margin:0 0 12px;font-size:.9rem}
+section.box,.doc{background:var(--c);border:1px solid var(--b);border-radius:10px;padding:14px 16px;margin:12px 0}
+h3{margin:0 0 8px;font-size:1rem;color:var(--gr)}
+label{margin-right:12px;display:inline-block}
+input[type=text],input[type=number],select,textarea{width:100%;font:inherit;padding:7px 9px;border:1px solid var(--b);border-radius:6px;background:var(--bg);color:var(--t)}
+textarea{min-height:90px}.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1 1 150px}
+.sub{margin:6px 0 10px 22px;padding:8px 10px;border-left:3px solid var(--gr);background:var(--bg);border-radius:0 6px 6px 0}
+.sub label{font-size:.9rem}
+button{font:inherit;cursor:pointer;padding:7px 14px;border-radius:6px;border:1px solid var(--b);background:var(--c);color:var(--t)}
+button.p{background:var(--bl);border-color:var(--bl);color:#fff}button.sm{padding:1px 8px;font-size:.8rem;color:var(--m)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,[contenteditable]:focus-visible{outline:2px solid var(--bl);outline-offset:2px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}.msg{color:var(--m);font-size:.9rem;margin:6px 0}
+.doc h1{color:var(--bl);text-align:center;font-size:2rem;margin:.2em 0 .6em}
+.doc h2{color:var(--gr);font-size:1.2rem;margin:1.4em 0 .4em}
+.doc ol,.doc ul{padding-left:1.4em}.doc li{margin:.3em 0}
+.ed{border-radius:3px}.doc[data-m=t] .ed{border-bottom:1px dotted var(--m)}.doc[data-m=t] .ed:hover{background:var(--hl)}
+.ans{color:var(--bl);margin:2px 0 6px}.plan{background:var(--bg);border-radius:8px;padding:6px 12px}
+table{border-collapse:collapse;width:100%}td,th{border:1px solid var(--b);padding:4px 8px;text-align:left;vertical-align:top}
+.sp{padding:0 6px;margin-left:4px;border:0;background:none}
+.lib li{margin:3px 0}.fold{font-weight:600;color:var(--gr);margin-top:8px}
+#doc{font-family:var(--f,inherit)}
+.stu .box,.stu #tools,.stu .app,.stu .sub0{display:none!important}
+@media print{body{background:#fff}.no-print,.box{display:none!important}.doc{border:0;padding:0}}
+</style></head><body><main>
+<h1 class="app no-print">真實語料轉課件</h1>
+<p class="sub0 no-print">表單 → 產生提示詞 → 到 Claude 生成 JSON → 貼回這裡 → 教師編輯 → 學生模式／PDF／存入資料庫</p>
+
+<section class="box" id="form">
+<h3>① 單元設定</h3>
+<input type="text" id="unit" placeholder="單元名稱（例如：滷蛋便當）">
+<p style="margin:8px 0 4px">參考資料（貼上文字或網址；選「無」則由 AI 依單元名稱自行創作；圖片與檔案請直接傳給 Claude）</p>
+<textarea id="src" placeholder="貼上中文或外文文字、連結……"></textarea>
+<label><input type="checkbox" id="nosrc"> 無參考資料</label>
+<div class="row" style="margin-top:8px">
+<div>學生類型<select id="aud"><option>小學</option><option selected>中高生（會考／IB／AP）</option><option>成人</option><option>混齡</option></select></div>
+<div>學生程度<select id="lvl"><option>HSK 1</option><option>HSK 2</option><option>HSK 3</option><option selected>HSK 4</option><option>HSK 5</option><option>HSK 6</option><option>HSK 7–9</option><option>混程度</option></select></div>
+<div>課程時間（分）<select id="min"><option>25</option><option>60</option><option selected>90</option><option value="x">自填</option></select><input type="number" id="minx" placeholder="分鐘" hidden></div>
+</div>
+</section>
+
+<section class="box">
+<h3>② 課件內容（勾選後出現細項）</h3>
+<label><input type="checkbox" name="it" value="warmup" checked> 圖片／引起動機問答</label>
+<div class="sub" id="s-warmup"><label><input type="checkbox" id="wdesc"> 含「請學生描述圖片」</label></div><br>
+<label><input type="checkbox" name="it" value="dialogue"> 會話</label>
+<div class="sub" id="s-dialogue" hidden><div class="row"><input type="text" id="dsp" placeholder="說話人（母子、師生…）"><input type="text" id="dtm" placeholder="時間（過年前…）"><input type="text" id="dpl" placeholder="地點"><input type="text" id="dst" placeholder="風格（可愛活潑／幽默風趣／沉穩知識型／驚訝／生氣／討論）"></div></div><br>
+<label><input type="checkbox" name="it" value="article" checked> 文章</label>
+<div class="sub" id="s-article"><select id="ast"><option>原文風格</option><option>可愛活潑</option><option>幽默風趣</option><option>沉穩知識型</option><option>新聞報導型</option></select></div><br>
+<label><input type="checkbox" name="it" value="vocab" checked> 生詞（英日翻譯＋例句）</label>
+<label><input type="checkbox" name="it" value="grammar" checked> 語法（英日翻譯＋例句）</label>
+<div class="sub" id="s-grammar"><label><input type="checkbox" id="ord" checked> 附重組題（從語法例句出 2–3 題）</label></div><br>
+<label><input type="checkbox" name="it" value="quiz" checked> 閱讀測驗</label>
+<div class="sub" id="s-quiz"><label><input type="checkbox" name="qt" value="tf" checked> 是非</label><label><input type="checkbox" name="qt" value="mc" checked> 選擇</label><label><input type="checkbox" name="qt" value="fill"> 填空</label><label><input type="checkbox" name="qt" value="short" checked> 簡單問答</label><label><input type="checkbox" name="qt" value="open"> 深思問答</label></div><br>
+<label><input type="checkbox" name="it" value="discuss" checked> 討論（全部開放式）</label>
+<div class="sub" id="s-discuss"><label><input type="checkbox" name="ds" value="有趣想像" checked> 有趣想像</label><label><input type="checkbox" name="ds" value="思辨分析" checked> 思辨分析</label><label><input type="checkbox" name="ds" value="文化比較" checked> 文化比較</label><input type="text" id="dsx" placeholder="自填風格"></div><br>
+<label><input type="checkbox" name="it" value="homework"> 分級作業</label>
+<div class="sub" id="s-homework" hidden><label><input type="checkbox" name="hl" value="小孩"> 小孩</label><label><input type="checkbox" name="hl" value="初" checked> 初</label><label><input type="checkbox" name="hl" value="中" checked> 中</label><label><input type="checkbox" name="hl" value="高" checked> 高</label></div>
+<div class="bar"><button class="p" id="gen">產生提示詞</button><button id="cp">複製</button></div>
+<textarea id="out" placeholder="提示詞會出現在這裡，複製到 Claude 對話（有圖片或檔案請一起上傳）"></textarea>
+</section>
+
+<section class="box">
+<h3>③ 貼回 JSON</h3>
+<textarea id="paste" placeholder="把 Claude 回覆的 JSON 貼在這裡。之後單項「重寫此項」貼回的部分 JSON 會自動合併。"></textarea>
+<div class="bar"><button class="p" id="load">載入課件</button><button id="demo">載入範例</button><button id="clr">清空貼上區</button><label class="no-print">回音中文字型 <input type="file" id="font" accept=".ttf,.otf,.woff2" multiple></label></div>
+<div class="msg" id="msg"></div>
+</section>
+
+<div class="bar no-print" id="tools" hidden>
+<button id="mt" class="p">教師模式</button><button id="ms">學生模式</button><select id="ver" style="width:auto"><option value="tcp">繁體拼音</option><option value="tcz">繁體注音</option><option value="tc">繁體無標音</option><option value="scp">簡體拼音</option><option value="sc">簡體無標音</option></select><button id="pdf">列印／存成 PDF</button><button id="lk">複製學生連結</button><button id="exj">下載 JSON</button><button id="qgo">待改清單 (0)</button><button id="undo">復原刪除</button>
+<input type="text" id="fold" placeholder="資料夾（例：HSK4/節慶）" style="max-width:220px"><button id="save">存入資料庫</button>
+</div>
+<article class="doc" id="doc" data-m="t" hidden></article>
+<section class="box" id="qbox" hidden></section>
+
+<section class="box no-print">
+<h3>資料庫</h3>
+<div class="bar"><button id="exall">備份全部</button><label>匯入備份 <input type="file" id="imp" accept=".json"></label></div>
+<div class="lib" id="lib"></div>
+</section>
+<footer style="text-align:center;font-size:.8rem;color:var(--m);margin:28px 0 12px">Shelleytaiwan 製作 · 2026 · 請勿商用</footer>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.js"></script>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const gp=(o,p)=>p.split('.').reduce((x,k)=>x?.[k],o);
+const sp=(o,p,v)=>{const k=p.split('.');let x=o;for(let i=0;i<k.length-1;i++)x=x[k[i]];x[k.at(-1)]=v};
+let D=null,mode='t';
+const NAMES={warmup:'引起動機',dialogue:'會話',article:'文章',vocab:'生詞',grammar:'語法',quiz:'閱讀測驗',discuss:'討論',homework:'分級作業'};
+const QT={tf:'是非',mc:'選擇',fill:'填空',order:'重組',short:'簡單問答',open:'深思問答'};
+const msg=t=>$('#msg').textContent=t;
+const val=n=>$$(`[name=${n}]:checked`).map(x=>x.value);
+
+$$('[name=it]').forEach(x=>x.onchange=()=>{const s=$('#s-'+x.value);if(s)s.hidden=!x.checked});
+$('#min').onchange=e=>$('#minx').hidden=e.target.value!='x';
+$('#nosrc').onchange=e=>$('#src').disabled=e.target.checked;
+
+function gen(){
+ const its=val('it');
+ const mins=$('#min').value=='x'?$('#minx').value:$('#min').value;
+ let p=`你是對外華語課件設計師。請依下列需求輸出「單一 JSON」，放在一個 json 程式碼框（\`\`\`json）裡，框外不要有任何文字。JSON 內的文字若要引用或加引號，一律用「」，不要用半形或全形的雙引號。\n\n單元名稱：${$('#unit').value||'（請填寫）'}\n參考資料：${$('#nosrc').checked||!$('#src').value.trim()?'無（請依單元名稱與下列需求自行創作；若我另外上傳圖片或檔案，以它們為準）':'\n'+$('#src').value.trim()}\n學生類型：${$('#aud').value}\n學生程度：${$('#lvl').value}\n課程時間：${mins} 分鐘\n文字版本：繁體中文（台灣用語）。文字內不要加拼音或注音（由字型顯示）；簡體等其他版本由網站轉換。\n\n風格規則：小學＝可愛活潑；中高生＝針對會考、IB、AP 考試；成人＝實用並重視文化比較；混齡＝兼顧。\n程度規則：超過學生程度的生詞與語法務必列入 vocab／grammar。生詞多義時只用課件中的意思，並附英文、日文翻譯與例句。例句必須是課文以外、簡單自然的新句子，不可照抄課文。\n討論題必須全部是開放式問題，沒有唯一答案。\n另外請提供 plan（教案，各活動分鐘數加總約等於課程時間），以及所有問答的參考答案（warmup.a、quiz.a）。\n\n要包含的項目：${its.map(k=>NAMES[k]).join('、')}\n`;
+ if(its.includes('warmup')&&$('#wdesc').checked)p+='・引起動機含一題「請描述這張圖片」。\n';
+ if(its.includes('dialogue'))p+=`・會話：說話人 ${$('#dsp').value||'自訂'}；時間 ${$('#dtm').value||'自訂'}；地點 ${$('#dpl').value||'自訂'}；風格 ${$('#dst').value||'自然'}。\n`;
+ if(its.includes('article'))p+=`・文章風格：${$('#ast').value}。\n`;
+ if(its.includes('quiz'))p+=`・閱讀測驗題型：${val('qt').map(k=>QT[k]+'('+k+')').join('、')}，每種 3–5 題。\n`;
+ if(its.includes('grammar')&&$('#ord').checked)p+='・另從 grammar 的例句中挑 2–3 句出重組題（放進 quiz，type 為 order）：q 寫「請重組句子」，options 放打亂的詞語片段，a 放正確完整的句子。片段要切細，每片 1–3 個字，一句切成 5–8 片，不要把長詞組或子句整段當一片。\n';
+ if(its.includes('discuss'))p+=`・討論風格：${[...val('ds'),$('#dsx').value].filter(Boolean).join('、')}，每種風格至少 2 題，在 style 欄註明。\n`;
+ p+=`\n${its.includes('homework')?'分級作業只出這些級別：'+val('hl').join('、')+'。\n':''}JSON 格式（只含上面選取的項目，plan 一定要有，items 填入選取的項目鍵名）：\n{"title":"","lang":"tc","items":${JSON.stringify(its)},"plan":[{"min":5,"act":""}],"warmup":[{"q":"","a":""}],"dialogue":{"setting":"","lines":[{"s":"","t":""}]},"article":{"title":"","paragraphs":[""]},"vocab":[{"w":"","pos":"","en":"","ja":"","ex":""}],"grammar":[{"p":"","en":"","ja":"","ex":[""]}],"quiz":[{"type":"tf|mc|fill|order|short|open","q":"","options":[""],"a":""}],"discuss":[{"style":"","q":""}],"homework":[{"level":"小孩|初|中|高","t":""}]}`;
+ $('#out').value=p;
+}
+$('#gen').onclick=gen;
+$('#cp').onclick=async()=>{if(!$('#out').value)gen();try{await navigator.clipboard.writeText($('#out').value);msg('已複製提示詞')}catch{$('#out').select();msg('請手動複製')}};
+
+function load(){
+ const s=$('#paste').value.trim().replace(/^```(?:json)?/i,'').replace(/```$/,'').replace(/[“”„‟＂]/g,'"').trim().replace(/^json\s*(?=[{\[])/i,'');let o;
+ try{o=JSON.parse(s.slice(s.indexOf('{'),s.lastIndexOf('}')+1))}catch(e){return msg('JSON 格式錯誤：'+e.message+'。請讓 Claude 重新輸出純 JSON。')}
+ if(o._set){for(const k in o._set)sp(D,k,o._set[k]);Q.length=0;qr();R();return msg('已更新所選項目')}
+ if(D&&!o.title&&!o.lang){Object.assign(D,o);msg('已合併更新的部分')}else{D=o;D.items=D.items||val('it');D.lang=D.lang||'tc';msg('')}
+ const miss=D.items.filter(k=>!D[k]||(Array.isArray(D[k])&&!D[k].length));
+ if(miss.length){const n=miss.map(k=>NAMES[k]||k).join('、');msg('缺少：'+n+'。已在上方產生補件提示詞，貼給 Claude 後再貼回即可。');
+  $('#out').value=`請只輸出 JSON，補上缺少的項目（${miss.join('、')}），格式與先前相同，單元「${D.title||$('#unit').value}」，現有內容不要重複。`}
+ R();
+}
+$('#load').onclick=load;
+
+function R(){
+ const d=$('#doc'),t=mode=='t';$('#tools').hidden=d.hidden=!D;if(!D)return;
+ d.dataset.m=mode;applyFont();qr();$('#mt').className=t?'p':'';$('#ms').className=t?'':'p';
+ const T=(p,v)=>`<span class="ed" data-p="${p}" ${t?'contenteditable':''}>${E(X(v))}</span>`;
+ const S=p=>`<button class="sp no-print" data-sp="${p}" aria-label="朗讀">🔊</button>`;
+ const RI=p=>t?`<button class="sm no-print" data-rwi="${p}">改這條</button> <button class="sm no-print" data-del="${p}">刪除</button>`:'';
+ const H=k=>`<h2>${NAMES[k]}${t?` <button class="sm no-print" data-rw="${k}">重寫此項</button>`:''}</h2>`;
+ const A=(p,v)=>v==null||v===''?'':(t?'':'<button class="sm no-print" data-ans>看答案</button>')+`<div class="ans" ${t?'':'hidden'}>答：${T(p,v)}</div>`;
+ const h=[`<h1>${T('title',D.title)}</h1>`,t?'<p class="msg no-print">💡 直接點任何有虛線的文字就能修改；不滿意的可按「改這條」或「重寫此項」加入待改清單，全部看完再到頁尾一次產生提示詞。</p>':''];
+ if(t&&D.plan)h.push(`<div class="plan no-print"><b>教案</b><ul>${D.plan.map((x,i)=>`<li>${T(`plan.${i}.min`,x.min)} 分｜${T(`plan.${i}.act`,x.act)}</li>`).join('')}</ul></div>`);
+ if(D.warmup)h.push(H('warmup'),`<ol>${D.warmup.map((x,i)=>`<li>${RI(`warmup.${i}`)}${T(`warmup.${i}.q`,x.q)}${S(`warmup.${i}.q`)}${A(`warmup.${i}.a`,x.a)}</li>`).join('')}</ol>`);
+ if(D.dialogue)h.push(H('dialogue'),D.dialogue.setting?`<p>${T('dialogue.setting',D.dialogue.setting)}</p>`:'',D.dialogue.lines.map((l,i)=>`<p>${RI(`dialogue.lines.${i}`)}<b>${T(`dialogue.lines.${i}.s`,l.s)}</b>：${T(`dialogue.lines.${i}.t`,l.t)}${S(`dialogue.lines.${i}.t`)}</p>`).join(''));
+ if(D.article)h.push(H('article'),`<div class="no-print"><button data-ra="all">▶ 整段朗讀</button> <button data-ra="sh">跟讀模式</button><div id="shbox" hidden style="margin:10px 0;padding:12px;border:1px solid var(--b);border-radius:8px"><p id="shtxt" style="font-size:1.4rem;margin:0 0 8px"></p><button data-ra="again">🔁 重聽</button> <button class="p" data-ra="next">▶ 下一句</button></div></div>`,D.article.title?`<h3>${T('article.title',D.article.title)}</h3>`:'',D.article.paragraphs.map((x,i)=>`<p>${T(`article.paragraphs.${i}`,x)}${S(`article.paragraphs.${i}`)}</p>`).join(''));
+ if(D.vocab)h.push(H('vocab'),`<div style="overflow-x:auto"><table><tr><th>生詞</th><th>詞性</th><th>English</th><th>日本語</th><th>例句</th></tr>${D.vocab.map((v,i)=>`<tr><td>${RI(`vocab.${i}`)}${T(`vocab.${i}.w`,v.w)}${S(`vocab.${i}.w`)}</td><td>${T(`vocab.${i}.pos`,v.pos)}</td><td>${T(`vocab.${i}.en`,v.en)}</td><td>${T(`vocab.${i}.ja`,v.ja)}</td><td>${T(`vocab.${i}.ex`,v.ex)}${S(`vocab.${i}.ex`)}</td></tr>`).join('')}</table></div>`);
+ if(D.grammar)h.push(H('grammar'),D.grammar.map((g,i)=>`<p><b>${T(`grammar.${i}.p`,g.p)}</b> ${RI(`grammar.${i}`)}<br>${T(`grammar.${i}.en`,g.en)}<br>${T(`grammar.${i}.ja`,g.ja)}</p><ul>${(g.ex||[]).map((x,j)=>`<li>${RI(`grammar.${i}.ex.${j}`)}${T(`grammar.${i}.ex.${j}`,x)}${S(`grammar.${i}.ex.${j}`)}</li>`).join('')}</ul>`).join(''));
+ if(D.quiz)h.push(H('quiz'),`<ol>${D.quiz.map((q,i)=>`<li>${t?`<small>【${QT[q.type]||q.type}】</small> ${RI(`quiz.${i}`)}`:''}${T(`quiz.${i}.q`,q.q)}${q.type=='order'&&q.options?.length?`<p>${q.options.map((o,j)=>T(`quiz.${i}.options.${j}`,o)).join(' ／ ')}</p>`:q.options?.length?`<ul style="list-style:upper-alpha">${q.options.map((o,j)=>`<li>${T(`quiz.${i}.options.${j}`,o)}</li>`).join('')}</ul>`:''}${A(`quiz.${i}.a`,q.a)}</li>`).join('')}</ol>`);
+ if(D.discuss)h.push(H('discuss'),`<ol>${D.discuss.map((x,i)=>`<li>${t?`<small>【${T(`discuss.${i}.style`,x.style)}】</small> ${RI(`discuss.${i}`)}`:''}${T(`discuss.${i}.q`,x.q)}</li>`).join('')}</ol>`);
+ if(D.homework)h.push(H('homework'),`<ul>${D.homework.map((x,i)=>`<li>${RI(`homework.${i}`)}<b>${T(`homework.${i}.level`,x.level)}</b>－${T(`homework.${i}.t`,x.t)}</li>`).join('')}</ul>`);
+ d.innerHTML=h.join('');
+}
+$('#mt').onclick=()=>{mode='t';R()};$('#ms').onclick=()=>{mode='s';R()};$('#pdf').onclick=()=>print();
+
+$('#doc').addEventListener('input',e=>{const p=e.target.dataset?.p;if(p)sp(D,p,/\.min$/.test(p)?+e.target.textContent||0:U(e.target.textContent))});
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.rw||b.dataset.rwi){queue(b.dataset.rwi||b.dataset.rw);b.textContent='✓ 已加入';return}
+ if(b.dataset.qd){Q.splice(+b.dataset.qd,1);qr()}
+ if(b.dataset.qclr){Q.length=0;qr()}
+ if(b.dataset.qgen){const c=Q.map(x=>`・${x.p}：${x.note||'請重寫'}\n　目前內容：${JSON.stringify(gp(D,x.p))}`).join('\n');$('#out').value=`請只輸出 JSON，放在 json 程式碼框裡，格式：{"_set":{"路徑":新內容,...}}。每個路徑的新內容格式必須與「目前內容」相同，只包含下列要改的項目。\n${c}`;$('#out').scrollIntoView({behavior:'smooth',block:'center'});msg('提示詞已產生在上方：複製給 Claude，再把回覆貼到③按「載入課件」，一次全部更新。')}
+ if(b.dataset.sp)say(X(gp(D,b.dataset.sp)));
+ if(b.dataset.ans){const a=b.nextElementSibling;a.hidden=!a.hidden}
+ if(b.dataset.del){const k=b.dataset.del.split('.'),i=+k.pop();UN=JSON.stringify(D);gp(D,k.join('.')).splice(i,1);Q.length=0;R();msg('已刪除。刪錯了請按工具列的「復原刪除」。');return}
+ if(b.dataset.ra)ra(b.dataset.ra);
+ if(b.dataset.rwi){const p=b.dataset.rwi;$('#out').value=`請只輸出 JSON，放在 json 程式碼框裡：{"_set":{"${p}":（新內容，格式與目前相同）}}\n目前內容：${JSON.stringify(gp(D,p))}\n修改要求：（請在這裡補上，例如「例句改成課文以外的簡單句子」）`;$('#out').scrollIntoView({behavior:'smooth',block:'center'});$('#out').focus();msg('提示詞已放在上方，補上修改要求後複製給 Claude，再把回覆貼回③載入。')}
+ if(b.dataset.rw){const k=b.dataset.rw;$('#out').value=`「${NAMES[k]}」這部分我不滿意，請依原需求重寫，只輸出 JSON：{"${k}":……}，格式與先前相同。\n目前內容：${JSON.stringify(D[k])}\n修改要求：（請在這裡補上，例如「第 3 題換成更生活化」）`;$('#out').scrollIntoView({behavior:'smooth',block:'center'});$('#out').focus();msg('提示詞已放在上方，補上修改要求後複製給 Claude，再把回覆貼回③載入。')}
+});
+function say(txt){
+ if(!('speechSynthesis' in window))return msg('此瀏覽器不支援朗讀');
+ speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt),sc=isSc(),l=sc?'zh-CN':'zh-TW',vs=speechSynthesis.getVoices();
+ const pref=sc?/Yunyang|云扬|Ting-?Ting|婷婷/i:/Mei-?Jia|美佳/i;
+ const v=vs.find(v=>pref.test(v.name))||vs.find(v=>v.lang.replace('_','-')==l);if(v)u.voice=v;u.lang=l;u.rate=.85;speechSynthesis.speak(u);
+}
+const _o=async e=>{const f=e.target.files[0];if(!f)return;
+ try{const ff=new FontFace('EchoUser',await f.arrayBuffer());await ff.load();document.fonts.add(ff);$('#doc').style.setProperty('--f','EchoUser, sans-serif');msg('已套用字型：'+f.name)}catch(x){msg('字型載入失敗')}};
+
+/* 資料庫 (IndexedDB) */
+const DB=()=>new Promise((r,j)=>{const q=indexedDB.open('cw',1);q.onupgradeneeded=()=>q.result.createObjectStore('i',{keyPath:'id'});q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)});
+const tx=async(m,fn)=>{const d=await DB();return new Promise((r,j)=>{const t=d.transaction('i',m),q=fn(t.objectStore('i'));t.oncomplete=()=>r(q&&q.result);t.onerror=()=>j(t.error)})};
+async function all(){try{return await tx('readonly',s=>s.getAll())||[]}catch{return[]}}
+async function lib(){
+ const a=await all(),g={};a.forEach(x=>(g[x.folder]=g[x.folder]||[]).push(x));
+ $('#lib').innerHTML=Object.keys(g).sort().map(f=>`<div class="fold">📁 ${E(f)}</div><ul>${g[f].sort((x,y)=>y.ts-x.ts).map(x=>`<li>${E(x.title)} <button class="sm" data-open="${x.id}">開啟</button> <button class="sm" data-del="${x.id}">刪除</button></li>`).join('')}</ul>`).join('')||'<p class="msg">還沒有課件。載入後按「存入資料庫」。瀏覽器資料只存在這台電腦，請定期備份。</p>';
+}
+$('#save').onclick=async()=>{if(!D)return;D._id=D._id||String(Date.now());
+ try{await tx('readwrite',s=>s.put({id:D._id,folder:$('#fold').value.trim()||'未分類',title:D.title,ts:Date.now(),data:D}));msg('已存入資料庫');lib()}catch{msg('此瀏覽器無法使用資料庫，請改用「下載 JSON」')}};
+$('#lib').addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.open){const r=await tx('readonly',s=>s.get(b.dataset.open));if(r){D=r.data;$('#fold').value=r.folder;R();$('#doc').scrollIntoView()}}
+ if(b.dataset.del&&confirm('確定刪除？')){await tx('readwrite',s=>s.delete(b.dataset.del));lib()}});
+const dl=(name,txt)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'application/json'}));a.download=name;a.click()};
+$('#exj').onclick=()=>D&&dl((D.title||'courseware')+'.json',JSON.stringify(D,null,1));
+$('#exall').onclick=async()=>dl('課件資料庫備份.json',JSON.stringify(await all()));
+$('#imp').onchange=async e=>{try{const a=JSON.parse(await e.target.files[0].text());await tx('readwrite',s=>{(Array.isArray(a)?a:[a]).forEach(x=>s.put(x))});msg('已匯入');lib()}catch{msg('匯入失敗：檔案格式不符')}};
+const FN={tcp:'EchoMandarin-PinyinTC',tcz:'EchoMandarin-ZhuyinTC',scp:'EchoMandarin-PinyinSC'},loaded={},cv={};
+async function addFont(k,src){try{const ff=new FontFace('E_'+k,typeof src=='string'?`url(${src})`:src);await ff.load();document.fonts.add(ff);loaded[k]=1}catch{}}
+function applyFont(){const v=$('#ver').value;$('#doc').style.setProperty('--f',loaded[v]?`E_${v}, sans-serif`:'inherit')}
+const isSc=()=>/^sc/.test($('#ver').value);
+function conv(s,toSc){if(!window.OpenCC)return s;const k=toSc?'s':'t';cv[k]=cv[k]||(toSc?OpenCC.Converter({from:'twp',to:'cn'}):OpenCC.Converter({from:'cn',to:'twp'}));return cv[k](s)}
+const X=s=>{s=String(s??'');const sc=isSc();return sc==(D.lang=='sc')?s:conv(s,sc)};
+const U=s=>{const sc=isSc();return sc==(D.lang=='sc')?s:conv(s,!sc)};
+$('#font').onchange=async e=>{for(const f of e.target.files){const k=Object.keys(FN).find(k=>f.name.includes(FN[k].replace('EchoMandarin-','')));if(k)await addFont(k,await f.arrayBuffer())}applyFont();msg('已載入字型：'+(Object.keys(loaded).join('、')||'無（檔名需含 PinyinTC／ZhuyinTC／PinyinSC）'))};
+$('#ver').onchange=()=>{applyFont();R()};
+$('#lk').onclick=async()=>{const u=location.origin+location.pathname+'?c='+encodeURIComponent('courses/'+(D.title||'courseware')+'.json')+'&v='+$('#ver').value;try{await navigator.clipboard.writeText(u);msg('已複製：'+u)}catch{msg(u)}};
+const DEMO={title:'滷蛋便當',lang:'tc',items:['warmup','article','vocab','grammar','quiz','discuss','homework'],plan:[{min:10,act:'暖身問答、看圖描述'},{min:25,act:'讀短文、學生詞'},{min:25,act:'語法練習與重組'},{min:20,act:'討論與體演'}],warmup:[{q:'你多久買一次便當？',a:'（開放回答）每週兩三次。'},{q:'請描述這張圖片：這個便當有什麼？',a:'便當裡有白飯和五顆滷蛋，沒有青菜。'}],article:{title:'一句話讓滷蛋便當變調',paragraphs:['有位網友買便當時跟老闆說：「四個都要滷蛋。」結果回家一打開，便當裡竟然有五顆滷蛋，一點青菜也沒有。','原來老闆本來就附一顆滷蛋，網友又確定四格都要滷蛋，所以才會發生這樣的慘案。']},vocab:[{w:'慘案',pos:'名詞',en:'a disaster (humorous)',ja:'惨事',ex:'考試前一天電腦壞了，真是一場慘案。'},{w:'確定',pos:'動詞',en:'to be sure',ja:'確かめる',ex:'你確定明天要去爬山嗎？'}],grammar:[{p:'結果……（沒想到）',en:'as a result; unexpectedly',ja:'その結果',ex:['大家都不看好他，結果他竟然得了第一名。']}],quiz:[{type:'tf',q:'便當裡有青菜。',a:'錯。沒有青菜。'},{type:'order',q:'請重組句子',options:['結果','便當裡','全是滷蛋','打開後'],a:'打開後，便當裡全是滷蛋。'},{type:'short',q:'為什麼便當只有滷蛋？',a:'因為老闆已附一顆，他又說四格都要。'}],discuss:[{style:'有趣想像',q:'如果你是老闆，你會怎麼確認客人的訂單？'},{style:'文化比較',q:'你的國家有類似的便當或外帶餐盒嗎？有什麼不同？'}],homework:[{level:'初',t:'介紹一種你喜歡的便當，並說明為什麼喜歡。'},{level:'高',t:'中小學午餐該帶便當還是吃營養午餐？寫一篇議論文。'}]};
+$('#demo').onclick=()=>{D=JSON.parse(JSON.stringify(DEMO));R();msg('這是範例課件，可直接點文字修改');$('#doc').scrollIntoView()};
+const q=new URLSearchParams(location.search);
+if(q.get('v'))$('#ver').value=q.get('v');
+if(q.get('c')){document.body.classList.add('stu');document.body.insertAdjacentHTML('afterbegin','<div class="no-print" style="text-align:right;padding:8px"><button onclick="print()">存成 PDF</button></div>');autoFonts();fetch(q.get('c')).then(r=>r.json()).then(o=>{D=o;mode='s';R()}).catch(()=>msg('找不到課件檔'))}else autoFonts();
+async function autoFonts(){for(const k in FN)await addFont(k,'fonts/'+FN[k]+'.ttf');applyFont()}
+const SH={s:[],i:0};
+function ra(k){const P=D.article.paragraphs.map(X);
+ if(k=='all')return say(P.join(''));
+ const box=$('#shbox'),tx=$('#shtxt'),show=()=>{tx.textContent=SH.s[SH.i];say(SH.s[SH.i]);$('[data-ra=next]').hidden=SH.i>=SH.s.length-1};
+ if(k=='sh'){SH.s=P.join('').match(/[^。！？!?]+[。！？!?]*[」』”]*/g)||[];SH.i=0;box.hidden=false;return show()}
+ if(k=='next'&&SH.i<SH.s.length-1){SH.i++;show()}
+ if(k=='again')show()}
+const Q=[];
+const lab=p=>{const s=p.split('.'),n=s.find((x,j)=>j&&/^\d+$/.test(x));return (NAMES[s[0]]||s[0])+(n!=null?` 第${+n+1}條`:'（整項）')+(s[1]=='ex'||s[2]=='ex'?'例句':'')};
+function queue(p){if(!Q.some(x=>x.p==p))Q.push({p,note:''});qr()}
+function qr(){const b=$('#qbox');b.hidden=!D;$('#qgo').textContent=`待改清單 (${Q.length})`;
+ b.innerHTML=`<h3>待請 AI 重寫（${Q.length}）</h3>`+(Q.length?'':'<p class="msg">目前沒有項目。你自己手動改的文字不用放這裡；只有想請 AI 重寫的，才在該條旁按「改這條」或「重寫此項」，它就會出現在這裡。</p>')+Q.map((x,i)=>`<div style="margin:8px 0"><b>${E(lab(x.p))}</b> <button class="sm" data-qd="${i}">移除</button><div class="msg">${E(JSON.stringify(gp(D,x.p)).slice(0,70))}</div><input type="text" data-qn="${i}" value="${E(x.note)}" placeholder="這條要怎麼改？（例：改成課文以外的簡單句子）"></div>`).join('')+(Q.length?`<div class="bar"><button class="p" data-qgen="1">一次產生提示詞</button><button data-qclr="1">清空</button></div>`:'')}
+document.addEventListener('input',e=>{const i=e.target.dataset?.qn;if(i!=null)Q[+i].note=e.target.value});
+$('#qgo').onclick=()=>$('#qbox').scrollIntoView({behavior:'smooth'});
+let UN=null;
+$('#undo').onclick=()=>{if(UN){D=JSON.parse(UN);UN=null;Q.length=0;R();msg('已復原')}else msg('沒有可復原的刪除')};
+$('#clr').onclick=()=>{$('#paste').value='';msg('已清空貼上區')};
+lib();
+</script></body></html>
